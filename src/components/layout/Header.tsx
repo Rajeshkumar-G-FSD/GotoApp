@@ -15,8 +15,12 @@ export default function Header() {
     <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-zinc-100 shadow-sm shadow-teal-900/5 antialiased">
       <div className="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
-          <Link to="/" className="text-2xl font-extrabold tracking-tight text-primary">
-            Goto Holidays
+          <Link to="/" className="flex items-center group">
+            <img 
+              src="https://i.postimg.cc/Jnrg4Jqr/gootoholidays-yellow.png" 
+              alt="Goto Holidays" 
+              className="h-14 w-auto transition-transform duration-300 group-hover:scale-105" 
+            />
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (

@@ -20,9 +20,13 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1">
-            <div className="text-xl font-black text-primary mb-4">
-              Goto Holidays
-            </div>
+            <Link to="/" className="inline-block mb-6 group">
+              <img 
+                src="https://i.postimg.cc/Jnrg4Jqr/gootoholidays-yellow.png" 
+                alt="Goto Holidays" 
+                className="h-12 w-auto transition-transform duration-300 group-hover:scale-105" 
+              />
+            </Link>
             <p className="text-zinc-500 text-sm max-w-xs">
               Expert guidance for your global travel. We simplify visas, flights, and holiday packages.
             </p>

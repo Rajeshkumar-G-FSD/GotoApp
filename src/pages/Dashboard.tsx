@@ -37,9 +37,8 @@ export default function Dashboard() {
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 border-r border-zinc-200 bg-white py-8 sticky top-0 h-screen shrink-0">
-        <div className="px-6 mb-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold text-white text-xl">G</div>
-           <div className="font-bold text-primary text-lg">Goto Holidays</div>
+        <div className="px-6 mb-10">
+          <img src="https://i.postimg.cc/Jnrg4Jqr/gootoholidays-yellow.png" alt="Goto Holidays" className="h-12 w-auto" />
         </div>
 
         <div className="px-6 mb-10">
