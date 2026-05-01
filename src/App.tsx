@@ -7,6 +7,7 @@ import Visas from './pages/Visas';
 import Flights from './pages/Flights';
 import Packages from './pages/Packages';
 import Dashboard from './pages/Dashboard';
+import WhatsAppButton from './components/ui/WhatsAppButton';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -109,6 +110,7 @@ export default function App() {
   return (
     <Router>
       <AnimatedRoutes />
+      <WhatsAppButton />
     </Router>
   );
 }
