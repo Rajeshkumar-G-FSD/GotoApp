@@ -1,4 +1,4 @@
-import { Search, Globe, FileText, UploadCloud, PlaneTakeoff, ShieldCheck, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Hotel } from 'lucide-react';
+import { Search, Globe, FileText, UploadCloud, PlaneTakeoff, ShieldCheck, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Hotel, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useRef, useEffect } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
@@ -80,6 +80,7 @@ function ModernCalendar({ selectedDate, onSelect, onClose }: { selectedDate: Dat
 
 export default function Visas() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState<typeof countries[0] | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -94,7 +95,7 @@ export default function Visas() {
   );
 
   const handleExplore = () => {
-    if (searchQuery) {
+    if (selectedCountry || searchQuery) {
       setShowResults(true);
       setTimeout(() => {
         const element = document.getElementById('visa-results');
@@ -168,22 +169,40 @@ export default function Visas() {
             {/* Country Search Input Container */}
             <div className="flex-1 flex flex-col relative" ref={dropdownRef}>
               <div className="flex items-center px-6 py-4 lg:py-2 min-w-[200px]">
-                <Globe className="w-6 h-6 text-primary mr-3 shrink-0" />
-                <input 
-                  className="w-full bg-transparent border-none focus:ring-0 text-zinc-900 placeholder-zinc-400 font-bold text-base md:text-lg lg:text-sm" 
-                  placeholder="Search for a country" 
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setIsDropdownOpen(true);
-                  }}
-                  onFocus={() => setIsDropdownOpen(true)}
-                />
+                {selectedCountry ? (
+                  <div className="flex items-center gap-3 w-full animate-in fade-in slide-in-from-left-2 duration-300">
+                    <span className="text-2xl shrink-0">{selectedCountry.flag}</span>
+                    <span className="font-bold text-zinc-900 text-base md:text-lg lg:text-sm">{selectedCountry.name}</span>
+                    <button 
+                      onClick={() => {
+                        setSelectedCountry(null);
+                        setSearchQuery('');
+                      }} 
+                      className="ml-auto p-1.5 hover:bg-zinc-100 rounded-full text-zinc-400 hover:text-zinc-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Globe className="w-6 h-6 text-primary mr-3 shrink-0" />
+                    <input 
+                      className="w-full bg-transparent border-none focus:ring-0 text-zinc-900 placeholder-zinc-400 font-bold text-base md:text-lg lg:text-sm" 
+                      placeholder="Search for a country" 
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setIsDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsDropdownOpen(true)}
+                    />
+                  </>
+                )}
               </div>
 
               {/* Dropdown Menu */}
               <AnimatePresence>
-                {isDropdownOpen && (
+                {isDropdownOpen && !selectedCountry && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -196,6 +215,7 @@ export default function Visas() {
                           <button
                             key={country.name}
                             onClick={() => {
+                              setSelectedCountry(country);
                               setSearchQuery(country.name);
                               setIsDropdownOpen(false);
                             }}
