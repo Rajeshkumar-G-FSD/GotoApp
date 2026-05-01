@@ -46,7 +46,7 @@ export default function Header() {
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
                 <Phone className="w-4 h-4 text-primary group-hover:text-white" />
               </div>
-              <span className="text-sm font-bold text-zinc-700 group-hover:text-primary transition-colors">9840454061</span>
+              <span className="text-sm font-bold text-zinc-700 group-hover:text-primary transition-colors">R Nishanth - 9840454061</span>
             </a>
           </div>
           <div className="hidden md:flex items-center gap-2">
@@ -106,7 +106,7 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                    <Phone className="w-5 h-5 text-primary" />
-                   <span className="font-bold text-zinc-900">9840454061</span>
+                   <span className="font-bold text-zinc-900">R Nishanth - 9840454061</span>
                 </a>
                 <div className="flex gap-3">
                   <Link 
