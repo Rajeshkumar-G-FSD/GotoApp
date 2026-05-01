@@ -7,11 +7,21 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative min-h-[600px] flex items-center justify-center px-6 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=2000" 
-            alt="Tropical coastline"
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
             className="w-full h-full object-cover"
-          />
+          >
+            <source src="/thailand.mp4" type="video/mp4" />
+            {/* Fallback image */}
+            <img 
+              src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=2000" 
+              alt="Tropical coastline"
+              className="w-full h-full object-cover"
+            />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/40 via-zinc-900/20 to-background"></div>
         </div>
 

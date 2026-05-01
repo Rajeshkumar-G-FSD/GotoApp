@@ -45,11 +45,15 @@ export default function Visas() {
       {/* Hero Section */}
       <section className="relative w-full bg-zinc-50 border-b border-zinc-200 py-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1436491865332-7a61a109c0f2?auto=format&fit=crop&q=80&w=2000" 
-            alt="Airplane wings"
-            className="w-full h-full object-cover opacity-10"
-          />
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            className="w-full h-full object-cover opacity-20"
+          >
+            <source src="/thailand.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-zinc-50/95 to-zinc-50"></div>
         </div>
 
