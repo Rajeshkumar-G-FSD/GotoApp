@@ -1,4 +1,4 @@
-import { Search, Globe, FileText, UploadCloud, PlaneTakeoff, ShieldCheck, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { Search, Globe, FileText, UploadCloud, PlaneTakeoff, ShieldCheck, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Hotel } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useRef, useEffect } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
@@ -84,6 +84,7 @@ export default function Visas() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [activePicker, setActivePicker] = useState<'start' | 'end' | null>(null);
+  const [showResults, setShowResults] = useState(false);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -91,6 +92,18 @@ export default function Visas() {
   const filteredCountries = countries.filter(country =>
     country.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleExplore = () => {
+    if (searchQuery) {
+      setShowResults(true);
+      setTimeout(() => {
+        const element = document.getElementById('visa-results');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -278,7 +291,10 @@ export default function Visas() {
             </div>
 
             <div className="px-2 py-2 lg:py-1 shrink-0">
-              <button className="w-full lg:w-auto bg-primary hover:bg-primary/95 text-white px-10 py-4 lg:py-3 rounded-2xl lg:rounded-full font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-sm group">
+              <button 
+                onClick={handleExplore}
+                className="w-full lg:w-auto bg-primary hover:bg-primary/95 text-white px-10 py-4 lg:py-3 rounded-2xl lg:rounded-full font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-sm group"
+              >
                 <Search className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 Explore
               </button>
@@ -287,11 +303,154 @@ export default function Visas() {
         </div>
       </section>
 
+      {/* Results Section */}
+      <AnimatePresence>
+        {showResults && (
+          <motion.section 
+            id="visa-results"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full bg-zinc-50 py-20 px-6"
+          >
+            <div className="max-w-7xl mx-auto">
+              <div className="flex flex-col lg:flex-row items-start gap-12">
+                {/* Left Column: Requirements */}
+                <div className="flex-grow space-y-12">
+                  <div className="flex flex-wrap items-center justify-between gap-6 pb-8 border-b border-zinc-200">
+                    <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 tracking-tight">Tourist Visa - 30 Days (Single Entry).</h2>
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-zinc-100">
+                        <span className="text-sm font-bold text-zinc-600">Show prices with taxes</span>
+                        <div className="w-10 h-5 bg-primary rounded-full relative">
+                          <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
+                        </div>
+                      </div>
+                      <button className="flex items-center gap-2 text-zinc-700 font-bold text-sm bg-white border border-zinc-200 px-5 py-2.5 rounded-xl hover:bg-zinc-50 transition-colors">
+                        <Globe className="w-4 h-4" /> Share info
+                      </button>
+                      <button className="bg-primary text-white font-bold text-sm px-6 py-2.5 rounded-xl hover:shadow-lg transition-all flex items-center gap-2">
+                        Apply Visa <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Traveller Details */}
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-black text-zinc-900 uppercase tracking-wider">1. Traveller Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[
+                        { title: 'Passport front', desc: 'Passport must be valid for at least 6 months from the date of travel.' },
+                        { title: 'Passport back', desc: 'Clear and full-page scan.' },
+                        { title: 'Passport Cover', desc: 'Upload passport cover page' },
+                        { title: 'Photograph', desc: 'The photo must be recent (not older than 3 months).' },
+                      ].map((doc, idx) => (
+                        <div key={idx} className="bg-white p-6 rounded-2xl border border-zinc-100 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer group">
+                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
+                            <FileText className="w-5 h-5 text-primary group-hover:text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-zinc-900 mb-1">{doc.title}</h4>
+                            <p className="text-sm text-zinc-500 leading-relaxed">{doc.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Travel Details */}
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-black text-zinc-900 uppercase tracking-wider">2. Travel Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[
+                        { title: 'Hotel Reservation Document (JPG)', desc: 'Must show a valid hotel reservation covering the entire stay duration.', icon: Hotel },
+                        { title: 'Flight Ticket (Arrival)', desc: 'Upload confirmed arrival ticket', icon: PlaneTakeoff },
+                        { title: 'Flight Ticket (Return)', desc: 'Upload confirmed return ticket', icon: PlaneTakeoff },
+                      ].map((doc, idx) => (
+                        <div key={idx} className="bg-white p-6 rounded-2xl border border-zinc-100 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer group">
+                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
+                            <doc.icon className="w-5 h-5 text-primary group-hover:text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-zinc-900 mb-1">{doc.title}</h4>
+                            <p className="text-sm text-zinc-500 leading-relaxed">{doc.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Miscellaneous */}
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-black text-zinc-900 uppercase tracking-wider">3. Miscellaneous</h3>
+                    <div className="bg-white p-6 rounded-2xl border border-zinc-100 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer group max-w-md">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
+                        <FileText className="w-5 h-5 text-primary group-hover:text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-zinc-900 mb-1">Birth certificate</h4>
+                        <p className="text-sm text-zinc-500 leading-relaxed">Birth certificate to be provided, for traveller below 18 years</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sidebar: Visa Options */}
+                <div className="w-full lg:w-[420px] shrink-0 space-y-6">
+                  {[
+                    { title: 'Tourist Visa - 30 Days (Single Entry).', time: '4 working days', validity: '60 days post issue', price: '₹6,959', active: true },
+                    { title: 'Tourist Visa - 60 Days (Multiple Entries).', time: '4 working days', validity: '60 days post issue', price: '₹18,680', recommended: true },
+                    { title: 'Tourist Visa - 60 Days (Single Entry).', time: '4 working days', validity: '60 days post issue', price: '₹12,040', recommended: true },
+                    { title: 'Tourist Visa - Express - 30 Days (Single Entry).', time: '2 working days', validity: '60 days post issue', price: '₹8,400' },
+                  ].map((option, idx) => (
+                    <div key={idx} className={`relative rounded-3xl border-2 transition-all p-6 ${option.active ? 'border-primary bg-primary/5' : 'border-white bg-white hover:border-zinc-200'}`}>
+                      {option.recommended && (
+                        <div className="absolute top-0 left-0 right-0 py-1.5 bg-orange-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-t-[22px] flex items-center justify-center gap-2">
+                           ✨ RECOMMENDED FOR YOUR TRAVEL ✨
+                        </div>
+                      )}
+                      <div className={`mt-2 ${option.recommended ? 'pt-4' : ''}`}>
+                        <div className="flex items-start justify-between gap-4 mb-6">
+                           <h4 className="font-black text-zinc-900 tracking-tight leading-tight">{option.title}</h4>
+                           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${option.active ? 'border-primary' : 'border-zinc-200'}`}>
+                             {option.active && <div className="w-3 h-3 bg-primary rounded-full"></div>}
+                           </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-8 py-6 border-y border-zinc-100 mb-6">
+                          <div>
+                            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block mb-1">Processing time</span>
+                            <span className="text-sm font-bold text-primary flex items-center gap-1">
+                              {option.time} <Globe className="w-3 h-3 opacity-50" />
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block mb-1">Visa validity</span>
+                            <span className="text-sm font-bold text-zinc-900">{option.validity}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                           <span className="text-2xl font-black text-zinc-900">{option.price}</span>
+                           <Globe className="w-4 h-4 text-zinc-300" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <button className="w-full bg-zinc-900 text-white font-black py-5 rounded-3xl hover:bg-zinc-800 transition-colors flex items-center justify-center gap-3 shadow-xl">
+                    <Globe className="w-5 h-5 text-zinc-400" />
+                    For active orders query
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
+
       {/* How it works */}
       <section className="bg-white py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-zinc-900 mb-4">How It Works</h2>
+            <h2 className="text-3xl font-bold text-zinc-900 mb-4 tracking-tight">Four simple steps to secure your travel documentation</h2>
             <p className="text-zinc-500">Four simple steps to secure your travel documentation.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
