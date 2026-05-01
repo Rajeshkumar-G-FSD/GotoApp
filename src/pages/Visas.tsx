@@ -1,6 +1,7 @@
-import { Search, Globe, FileText, UploadCloud, PlaneTakeoff, ShieldCheck } from 'lucide-react';
+import { Search, Globe, FileText, UploadCloud, PlaneTakeoff, ShieldCheck, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useRef, useEffect } from 'react';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
 
 const countries = [
   { name: 'Algeria', type: 'Sticker', flag: '🇩🇿' },
@@ -21,10 +22,71 @@ const countries = [
   { name: 'United States', type: 'B1/B2', flag: '🇺🇸' },
 ];
 
+function ModernCalendar({ selectedDate, onSelect, onClose }: { selectedDate: Date | null, onSelect: (date: Date) => void, onClose: () => void }) {
+  const [currentMonth, setCurrentMonth] = useState(selectedDate || new Date());
+  
+  const days = eachDayOfInterval({
+    start: startOfWeek(startOfMonth(currentMonth)),
+    end: endOfWeek(endOfMonth(currentMonth)),
+  });
+
+  return (
+    <div className="p-4 w-72">
+      <div className="flex items-center justify-between mb-4 px-1">
+        <h3 className="font-bold text-zinc-900">{format(currentMonth, 'MMMM yyyy')}</h3>
+        <div className="flex gap-1">
+          <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-zinc-100 rounded-full transition-colors">
+            <ChevronLeft className="w-4 h-4 text-zinc-600" />
+          </button>
+          <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-zinc-100 rounded-full transition-colors">
+            <ChevronRight className="w-4 h-4 text-zinc-600" />
+          </button>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+          <div key={day} className="text-[10px] font-bold text-zinc-400 text-center uppercase py-1">{day}</div>
+        ))}
+      </div>
+      
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((day, idx) => {
+          const isSelected = selectedDate && isSameDay(day, selectedDate);
+          const isCurrentMonth = isSameMonth(day, currentMonth);
+          
+          return (
+            <button
+              key={idx}
+              onClick={() => {
+                onSelect(day);
+                onClose();
+              }}
+              className={`
+                h-8 text-xs rounded-lg flex items-center justify-center transition-all
+                ${!isCurrentMonth ? 'text-zinc-300' : 'text-zinc-700 hover:bg-zinc-100 font-medium'}
+                ${isSelected ? 'bg-primary text-white hover:bg-primary/90 font-bold shadow-sm' : ''}
+                ${isToday(day) && !isSelected ? 'border border-primary/30 text-primary font-bold' : ''}
+              `}
+            >
+              {format(day, 'd')}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function Visas() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [activePicker, setActivePicker] = useState<'start' | 'end' | null>(null);
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   const filteredCountries = countries.filter(country =>
     country.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -35,6 +97,9 @@ export default function Visas() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+        setActivePicker(null);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -43,8 +108,8 @@ export default function Visas() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="relative w-full bg-zinc-50 border-b border-zinc-200 py-20 overflow-hidden">
-        <div className="absolute inset-0 z-0">
+      <section className="relative w-full bg-zinc-50 border-b border-zinc-200 py-16 md:py-24">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <video 
             autoPlay 
             loop 
@@ -68,7 +133,7 @@ export default function Visas() {
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold text-zinc-900 mb-6"
+            className="text-4xl md:text-6xl font-bold text-zinc-900 mb-6 tracking-tight"
           >
             Which country would you like to <span className="text-primary">explore?</span>
           </motion.h1>
@@ -76,7 +141,7 @@ export default function Visas() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-lg text-zinc-500 max-w-2xl mx-auto mb-10"
+            className="text-lg md:text-xl text-zinc-600 max-w-2xl mx-auto mb-12"
           >
             Clear, up-to-date documentation requirements to ensure your journey begins with confidence.
           </motion.p>
@@ -85,14 +150,14 @@ export default function Visas() {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="w-full max-w-5xl mx-auto bg-white rounded-full p-2 shadow-lg border border-zinc-200 flex flex-wrap md:flex-nowrap items-center divide-y md:divide-y-0 md:divide-x divide-zinc-100 relative"
+            className="w-full max-w-6xl mx-auto bg-white rounded-3xl lg:rounded-full p-2 shadow-xl border border-zinc-200 flex flex-col lg:flex-row items-stretch lg:items-center divide-y lg:divide-y-0 lg:divide-x divide-zinc-100 relative"
           >
             {/* Country Search Input Container */}
             <div className="flex-1 flex flex-col relative" ref={dropdownRef}>
-              <div className="flex items-center px-6 py-2 min-w-[200px]">
-                <Globe className="w-6 h-6 text-primary mr-3" />
+              <div className="flex items-center px-6 py-4 lg:py-2 min-w-[200px]">
+                <Globe className="w-6 h-6 text-primary mr-3 shrink-0" />
                 <input 
-                  className="w-full bg-transparent border-none focus:ring-0 text-zinc-900 placeholder-zinc-400" 
+                  className="w-full bg-transparent border-none focus:ring-0 text-zinc-900 placeholder-zinc-400 font-bold text-base md:text-lg lg:text-sm" 
                   placeholder="Search for a country" 
                   value={searchQuery}
                   onChange={(e) => {
@@ -110,9 +175,9 @@ export default function Visas() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 mt-4 w-full md:w-[400px] bg-white rounded-2xl shadow-2xl border border-zinc-100 overflow-hidden z-50 text-left"
+                    className="absolute top-full left-0 lg:left-6 mt-2 w-full lg:w-[400px] bg-white rounded-2xl shadow-2xl border border-zinc-100 overflow-hidden z-[100] text-left"
                   >
-                    <div className="max-h-[350px] overflow-y-auto">
+                    <div className="max-h-[400px] overflow-y-auto">
                       {filteredCountries.length > 0 ? (
                         filteredCountries.map((country) => (
                           <button
@@ -124,10 +189,10 @@ export default function Visas() {
                             className="w-full flex items-center gap-4 px-6 py-4 hover:bg-zinc-50 transition-colors border-b border-zinc-50 last:border-none"
                           >
                             <span className="text-2xl">{country.flag}</span>
-                            <div className="flex items-baseline gap-2">
-                              <span className="font-bold text-zinc-900">{country.name}</span>
+                            <div className="flex flex-col items-start lg:flex-row lg:items-baseline gap-1 lg:gap-2">
+                              <span className="font-bold text-zinc-900 text-base">{country.name}</span>
                               {country.type && (
-                                <span className="text-sm text-zinc-400 font-medium">({country.type})</span>
+                                <span className="text-xs text-zinc-400 font-medium">({country.type})</span>
                               )}
                             </div>
                           </button>
@@ -143,24 +208,77 @@ export default function Visas() {
               </AnimatePresence>
             </div>
 
-            <div className="flex-1 flex items-center px-6 py-2 min-w-[200px]">
-               <select className="w-full bg-transparent border-none focus:ring-0 text-zinc-900 p-0 cursor-pointer text-sm font-medium">
+            <div className="flex-1 flex items-center px-6 py-4 lg:py-2 min-w-[200px]">
+               <select className="w-full bg-transparent border-none focus:ring-0 text-zinc-900 p-0 cursor-pointer text-base md:text-lg lg:text-sm font-bold">
                   <option value="">Purpose Of Travel</option>
                   <option value="tourism">Tourism</option>
                   <option value="business">Business</option>
                   <option value="transit">Transit</option>
                 </select>
             </div>
-            <div className="flex-1 flex items-center px-6 py-2 min-w-[300px]">
-              <Search className="w-5 h-5 text-zinc-400 mr-2" />
-              <div className="flex items-center gap-2 flex-1">
-                <input className="w-full bg-transparent border-none focus:ring-0 text-sm text-zinc-900 px-0 font-medium" placeholder="Start Date" />
-                <span className="text-zinc-300">→</span>
-                <input className="w-full bg-transparent border-none focus:ring-0 text-sm text-zinc-900 px-0 font-medium" placeholder="End Date" />
+
+            {/* Date Pickers Container */}
+            <div className="flex-[1.5] flex items-center px-6 py-4 lg:py-2 min-w-[320px] relative" ref={pickerRef}>
+              <CalendarIcon className="w-5 h-5 text-primary mr-3 shrink-0" />
+              <div className="flex items-center gap-2 flex-1 relative">
+                {/* Start Date */}
+                <div className="flex-1 relative">
+                  <button 
+                    onClick={() => setActivePicker(activePicker === 'start' ? null : 'start')}
+                    className={`w-full text-left py-2 text-base md:text-lg lg:text-sm font-bold transition-colors ${startDate ? 'text-zinc-900' : 'text-zinc-400'}`}
+                  >
+                    {startDate ? format(startDate, 'MMM dd, yyyy') : 'Start Date'}
+                  </button>
+                  <AnimatePresence>
+                    {activePicker === 'start' && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-zinc-100 z-[100] overflow-hidden"
+                      >
+                        <ModernCalendar 
+                          selectedDate={startDate} 
+                          onSelect={setStartDate} 
+                          onClose={() => setActivePicker(null)} 
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <span className="text-zinc-300 font-bold">→</span>
+
+                {/* End Date */}
+                <div className="flex-1 relative">
+                  <button 
+                    onClick={() => setActivePicker(activePicker === 'end' ? null : 'end')}
+                    className={`w-full text-left py-2 text-base md:text-lg lg:text-sm font-bold transition-colors ${endDate ? 'text-zinc-900' : 'text-zinc-400'}`}
+                  >
+                    {endDate ? format(endDate, 'MMM dd, yyyy') : 'End Date'}
+                  </button>
+                  <AnimatePresence>
+                    {activePicker === 'end' && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-zinc-100 z-[100] overflow-hidden"
+                      >
+                        <ModernCalendar 
+                          selectedDate={endDate} 
+                          onSelect={setEndDate} 
+                          onClose={() => setActivePicker(null)} 
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
-            <div className="px-2 py-1">
-              <button className="bg-primary hover:bg-primary/95 text-white px-8 py-3 rounded-full font-bold transition-all flex items-center gap-2 whitespace-nowrap shadow-sm group">
+
+            <div className="px-2 py-2 lg:py-1 shrink-0">
+              <button className="w-full lg:w-auto bg-primary hover:bg-primary/95 text-white px-10 py-4 lg:py-3 rounded-2xl lg:rounded-full font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-sm group">
                 <Search className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 Explore
               </button>
